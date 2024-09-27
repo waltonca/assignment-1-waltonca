@@ -70,6 +70,37 @@ public:
         }
         return count;
     }
+
+    // delete special line
+    void deleteLine(int index) {
+        LinkedListNode *node = _start;
+        LinkedListNode *prev = nullptr;
+        int curr_idx = 0;
+
+        while (node != nullptr && curr_idx < index) {
+            prev = node;
+            node = node->_next;
+            curr_idx++;
+        }
+
+        if (node != nullptr) {
+            if (prev == nullptr) {
+                _start = node->_next; // delete first line
+            } else {
+                prev->_next = node->_next; // delete middle line
+            }
+            delete node;
+        } else {
+            std::cout << "Line " << index + 1 << " not found!" << std::endl;
+        }
+    }
+
+    // delete range for lines
+    void deleteRange(int start, int end) {
+        for (int i = start; i <= end; ++i) {
+            deleteLine(start);
+        }
+    }
 };
 
 int main(int argc, char* argv[]) {
@@ -102,12 +133,33 @@ int main(int argc, char* argv[]) {
         } else if (command == "Q") {
             std::cout << "Exiting without saving." << std::endl;
             break; // Q - exit without save
-        } else if (command.empty()) {
-            continue;
-        }
+        } else if (command[0] == 'D') {
+            // 3 types
+            // D 1
+            // D 1 3
+            // D
+            std::stringstream ss(command);
+            char D;
+            int num1, num2;
+            ss >> D;
 
-        editor.addLine(command); // add new line
-        line_num++; // add line number
+            if (ss >> num1) { // get num1
+                if (ss >> num2) { // get num2
+                    editor.deleteRange(num1 - 1, num2 - 1); // delete range frm num1 to num2
+                    line_num = std::min(line_num, editor.getLineCount() + 1); // update line number
+                } else { // if no num2, which means have only one number
+                    editor.deleteLine(num1 - 1); // delete num1 line
+                    line_num = std::min(line_num, editor.getLineCount() + 1); // update line number
+                }
+            } else { //  no num1, num2.
+                editor.deleteLine(line_num - 2); // delete previous line
+                line_num = std::min(line_num - 1, editor.getLineCount() + 1); // update line number
+            }
+
+        } else if (!command.empty()) {
+            editor.addLine(command); // add new line
+            line_num++;
+        }
     }
 
     return 0;
