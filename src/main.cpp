@@ -97,8 +97,11 @@ int main(int argc, char* argv[]) {
         // Commands
         //
         if (command == "E") {
-            editor.saveToFile(filename); // E - exit and save
+            editor.saveToFile(filename); // E - exit with save
             break;
+        } else if (command == "Q") {
+            std::cout << "Exiting without saving." << std::endl;
+            break; // Q - exit without save
         } else if (command.empty()) {
             continue;
         }
