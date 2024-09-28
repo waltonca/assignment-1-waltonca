@@ -21,18 +21,14 @@ int main(int argc, char *argv[]) {
     while (true) {
         std::cout << line_num << "> "; // display line number
         std::getline(std::cin, command);
-        std::cout << "Received command: " << command << std::endl; // Debugging line
 
         // Command processing
         if (command == "E") {
-            std::cout << "Saving and exiting..." << std::endl; // Debugging line
             editor.saveToFile(filename);
             break;
         } else if (command == "Q") {
-            std::cout << "Exiting without saving." << std::endl; // Debugging line
             break;
         } else if (command[0] == 'D') {
-            std::cout << "Delete command triggered." << std::endl; // Debugging line
             std::stringstream ss(command);
             char D;
             int num1, num2;
@@ -51,7 +47,6 @@ int main(int argc, char *argv[]) {
                 line_num = std::min(line_num - 1, editor.getLineCount() + 1); // update line number
             }
         } else if (command[0] == 'L') {
-            std::cout << "List command triggered." << std::endl; // Debugging line
             std::stringstream ss(command);
             char L;
             int num1, num2;
@@ -69,7 +64,6 @@ int main(int argc, char *argv[]) {
                 editor.printLines(); // entire contents of the linked list is displayed
             }
         } else if (command[0] == 'I') {
-            std::cout << "Insert command triggered." << std::endl; // Debugging line
             std::stringstream ss(command);
             char I;
             int num;
@@ -77,7 +71,6 @@ int main(int argc, char *argv[]) {
 
             if (ss >> num) { // get num
                 std::string lines_to_insert;
-                std::cout << "Enter lines (Ctrl+D to end):" << std::endl;
 
                 while (std::getline(std::cin, lines_to_insert)) {
                     if (lines_to_insert.empty()) {
@@ -87,8 +80,7 @@ int main(int argc, char *argv[]) {
                     line_num++;
                 }
             }
-        } else if (!command.empty()) {
-            std::cout << "Adding new line: " << command << std::endl; // Debugging line
+        } else if (!command.empty() || command == "") {
             editor.addLine(command);
             line_num++;
         }
