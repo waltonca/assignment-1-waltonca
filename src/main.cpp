@@ -26,6 +26,32 @@ public:
         }
     }
 
+    // Inserts text to the specified line
+    void insertLine(int index, const std::string& line) {
+        auto new_node = new LinkedListNode({._data=line});
+
+        if (index == 0) { // Insert into the first line
+            new_node->_next = _start;
+            _start = new_node;
+        } else {
+            LinkedListNode *node = _start;
+            int curr_idx = 0;
+
+            // Finds the node before the specified line
+            while (node != nullptr && curr_idx < index - 1) {
+                node = node->_next;
+                curr_idx++;
+            }
+
+            if (node != nullptr) {
+                new_node->_next = node->_next;
+                node->_next = new_node;
+            } else {
+                std::cout << "Line " << index << " not found!" << std::endl;
+            }
+        }
+    }
+
     // Print all the lines
     void printLines() const {
         LinkedListNode *node = _start;
@@ -211,7 +237,28 @@ int main(int argc, char* argv[]) {
             } else { // no num1, num2
                 editor.printLines(); //  entire contents of the linked list is displayed
             }
-        } else if (!command.empty()) {
+        } else if (command[0] == 'I') {
+            std::stringstream ss(command);
+            char I;
+            int num;
+            ss >> I;
+
+            if (ss >> num) { // get num
+                std::string new_line;
+                std::cout << num << "> ";
+                std::getline(std::cin, new_line);
+                editor.insertLine(num - 1, new_line); // insert the text to the specified line
+                line_num = num + 1; // previous line -> next line
+            } else { // no num
+                std::string new_line;
+                line_num = line_num - 1;
+                std::cout << line_num << "> ";
+                std::getline(std::cin, new_line);
+                editor.insertLine(line_num - 1, new_line); // insert the text before the current line
+                line_num = line_num + 2; // previous line -> next line
+            }
+
+        } else if (!command.empty() || command == "") {
             editor.addLine(command); // add new line
             line_num++;
         }
