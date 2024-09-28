@@ -1,173 +1,8 @@
 #include <iostream>
-#include <fstream>
-#include <string>
 #include <sstream>
+#include "LinkedList.h"
 
-class LinkedList {
-    struct LinkedListNode {
-        std::string _data;
-        LinkedListNode *_next{nullptr};
-    };
-
-    LinkedListNode *_start{nullptr};
-
-public:
-    // Add one line to the chain
-    void addLine(const std::string& line) {
-        auto new_node = new LinkedListNode({._data=line});
-        if (_start == nullptr) {
-            _start = new_node;
-        } else {
-            LinkedListNode *node = _start;
-            while (node->_next != nullptr) {
-                node = node->_next;
-            }
-            node->_next = new_node;
-        }
-    }
-
-    // Inserts text to the specified line
-    void insertLine(int index, const std::string& line) {
-        auto new_node = new LinkedListNode({._data=line});
-
-        if (index == 0) { // Insert into the first line
-            new_node->_next = _start;
-            _start = new_node;
-        } else {
-            LinkedListNode *node = _start;
-            int curr_idx = 0;
-
-            // Finds the node before the specified line
-            while (node != nullptr && curr_idx < index - 1) {
-                node = node->_next;
-                curr_idx++;
-            }
-
-            if (node != nullptr) {
-                new_node->_next = node->_next;
-                node->_next = new_node;
-            } else {
-                std::cout << "Line " << index << " not found!" << std::endl;
-            }
-        }
-    }
-
-    // Print all the lines
-    void printLines() const {
-        LinkedListNode *node = _start;
-        int line_num = 1;
-        while (node != nullptr) {
-            std::cout << line_num++ << "> " << node->_data << std::endl;
-            node = node->_next;
-        }
-    }
-
-    // Print specified line
-    void printLine(int index) const {
-        LinkedListNode *node = _start;
-        int curr_idx = 0;
-
-        while (node != nullptr && curr_idx < index) {
-            node = node->_next;
-            curr_idx++;
-        }
-
-        if (node != nullptr) {
-            std::cout << curr_idx + 1 << "> " << node->_data << std::endl;
-        } else {
-            std::cout << "Line " << index + 1 << " not found!" << std::endl;
-        }
-    }
-
-    // Print range of lines
-    void printRange(int start, int end) const {
-        LinkedListNode *node = _start;
-        int curr_idx = 0;
-
-        while (node != nullptr && curr_idx < start) {
-            node = node->_next;
-            curr_idx++;
-        }
-
-        while (node != nullptr && curr_idx <= end) {
-            std::cout << curr_idx + 1 << "> " << node->_data << std::endl;
-            node = node->_next;
-            curr_idx++;
-        }
-
-        if (curr_idx <= end) {
-            std::cout << "Range [" << start + 1 << ", " << end + 1 << "] exceeds file content!" << std::endl;
-        }
-    }
-
-    // Save content to file
-    void saveToFile(const std::string& filename) const {
-        std::ofstream outFile(filename);
-        LinkedListNode *node = _start;
-        while (node != nullptr) {
-            outFile << node->_data << std::endl;
-            node = node->_next;
-        }
-        outFile.close();
-    }
-
-    // load form file
-    void loadFromFile(const std::string& filename) {
-        std::ifstream inFile(filename);
-        if (inFile.is_open()) { // if file exit, load it
-            std::string line;
-            while (std::getline(inFile, line)) {
-                addLine(line);
-            }
-            inFile.close();
-        }
-        //if file not exit, create a new one
-    }
-
-    // get current line
-    int getLineCount() const {
-        int count = 0;
-        LinkedListNode *node = _start;
-        while (node != nullptr) {
-            count++;
-            node = node->_next;
-        }
-        return count;
-    }
-
-    // delete special line
-    void deleteLine(int index) {
-        LinkedListNode *node = _start;
-        LinkedListNode *prev = nullptr;
-        int curr_idx = 0;
-
-        while (node != nullptr && curr_idx < index) {
-            prev = node;
-            node = node->_next;
-            curr_idx++;
-        }
-
-        if (node != nullptr) {
-            if (prev == nullptr) {
-                _start = node->_next; // delete first line
-            } else {
-                prev->_next = node->_next; // delete middle line
-            }
-            delete node;
-        } else {
-            std::cout << "Line " << index + 1 << " not found!" << std::endl;
-        }
-    }
-
-    // delete range for lines
-    void deleteRange(int start, int end) {
-        for (int i = start; i <= end; ++i) {
-            deleteLine(start);
-        }
-    }
-};
-
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
     if (argc != 2) {
         std::cerr << "Usage: edit <filename>" << std::endl;
         return 1;
@@ -176,32 +11,28 @@ int main(int argc, char* argv[]) {
     std::string filename = argv[1];
     LinkedList editor;
 
-    // load file content
+    // Load file content
     editor.loadFromFile(filename);
     editor.printLines();
 
     std::string command;
     int line_num = editor.getLineCount() + 1; // start from existing line
 
-
-
     while (true) {
         std::cout << line_num << "> "; // display line number
         std::getline(std::cin, command);
+        std::cout << "Received command: " << command << std::endl; // Debugging line
 
-        // Commands
-        //
+        // Command processing
         if (command == "E") {
-            editor.saveToFile(filename); // E - exit with save
+            std::cout << "Saving and exiting..." << std::endl; // Debugging line
+            editor.saveToFile(filename);
             break;
         } else if (command == "Q") {
-            std::cout << "Exiting without saving." << std::endl;
-            break; // Q - exit without save
+            std::cout << "Exiting without saving." << std::endl; // Debugging line
+            break;
         } else if (command[0] == 'D') {
-            // 3 types
-            // D 1
-            // D 1 3
-            // D
+            std::cout << "Delete command triggered." << std::endl; // Debugging line
             std::stringstream ss(command);
             char D;
             int num1, num2;
@@ -209,18 +40,18 @@ int main(int argc, char* argv[]) {
 
             if (ss >> num1) { // get num1
                 if (ss >> num2) { // get num2
-                    editor.deleteRange(num1 - 1, num2 - 1); // delete range frm num1 to num2
+                    editor.deleteRange(num1 - 1, num2 - 1); // delete range from num1 to num2
                     line_num = std::min(line_num, editor.getLineCount() + 1); // update line number
-                } else { // if no num2, which means have only one number
+                } else { // if no num2
                     editor.deleteLine(num1 - 1); // delete num1 line
                     line_num = std::min(line_num, editor.getLineCount() + 1); // update line number
                 }
-            } else { //  no num1, num2.
+            } else { // no num1
                 editor.deleteLine(line_num - 2); // delete previous line
                 line_num = std::min(line_num - 1, editor.getLineCount() + 1); // update line number
             }
-
         } else if (command[0] == 'L') {
+            std::cout << "List command triggered." << std::endl; // Debugging line
             std::stringstream ss(command);
             char L;
             int num1, num2;
@@ -228,55 +59,37 @@ int main(int argc, char* argv[]) {
 
             if (ss >> num1) { // get num1
                 if (ss >> num2) { // get num2
-                    editor.printRange(num1 - 1, num2 - 1); // display range frm num1 to num2
-                    line_num = num2 + 1; //  current line will be changed to the next line.
+                    editor.printRange(num1 - 1, num2 - 1); // display range from num1 to num2
+                    line_num = num2 + 1; // current line will be changed to the next line.
                 } else { // only num1
                     editor.printLine(num1 - 1); // display this line
                     line_num = num1 + 1; // current line will be changed to the line following that line
                 }
-            } else { // no num1, num2
-                editor.printLines(); //  entire contents of the linked list is displayed
+            } else { // no num1
+                editor.printLines(); // entire contents of the linked list is displayed
             }
         } else if (command[0] == 'I') {
+            std::cout << "Insert command triggered." << std::endl; // Debugging line
             std::stringstream ss(command);
             char I;
             int num;
             ss >> I;
 
             if (ss >> num) { // get num
-                std::string new_line;
-                while (true) {
-                    std::cout << num << "> ";
-                    std::getline(std::cin, new_line);
+                std::string lines_to_insert;
+                std::cout << "Enter lines (Ctrl+D to end):" << std::endl;
 
-                    // Check for other commands
-                    if (new_line[0] == 'E' || new_line[0] == 'Q' || new_line[0] == 'D' || new_line[0] == 'L') {
-                        command = new_line; // Set the command for further processing
-                        break; // Break the insert mode to process the command
+                while (std::getline(std::cin, lines_to_insert)) {
+                    if (lines_to_insert.empty()) {
+                        break;
                     }
-
-                    editor.insertLine(num - 1, new_line); // insert the text to the specified line
-                    num++; // Move to the next line number for subsequent inserts
-                }
-                line_num = num; // Update line_num to the next line after the last inserted
-            } else { // no num
-                std::string new_line;
-                while (true) {
-                    std::cout << line_num - 1 << "> ";
-                    std::getline(std::cin, new_line);
-
-                    // Check for other commands
-                    if (new_line[0] == 'E' || new_line[0] == 'Q' || new_line[0] == 'D' || new_line[0] == 'L') {
-                        command = new_line; // Set the command for further processing
-                        break; // Break the insert mode to process the command
-                    }
-                    editor.insertLine(line_num - 2, new_line); // insert the text before the current line
-                    line_num++; // Move to the next line number for subsequent inserts
+                    editor.insertLine(num - 1, lines_to_insert); // Insert at specified line
+                    line_num++;
                 }
             }
-
-        } else if (!command.empty() || command == "") {
-            editor.addLine(command); // add new line
+        } else if (!command.empty()) {
+            std::cout << "Adding new line: " << command << std::endl; // Debugging line
+            editor.addLine(command);
             line_num++;
         }
     }

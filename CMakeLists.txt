@@ -4,4 +4,5 @@ project(Assignment1)
 set(CMAKE_CXX_STANDARD 23)
 
 add_executable(edit
-        src/main.cpp)
+        src/main.cpp
+        src/LinkedList.cpp)
