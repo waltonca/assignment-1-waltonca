@@ -245,17 +245,34 @@ int main(int argc, char* argv[]) {
 
             if (ss >> num) { // get num
                 std::string new_line;
-                std::cout << num << "> ";
-                std::getline(std::cin, new_line);
-                editor.insertLine(num - 1, new_line); // insert the text to the specified line
-                line_num = num + 1; // previous line -> next line
+                while (true) {
+                    std::cout << num << "> ";
+                    std::getline(std::cin, new_line);
+
+                    // Check for other commands
+                    if (new_line[0] == 'E' || new_line[0] == 'Q' || new_line[0] == 'D' || new_line[0] == 'L') {
+                        command = new_line; // Set the command for further processing
+                        break; // Break the insert mode to process the command
+                    }
+
+                    editor.insertLine(num - 1, new_line); // insert the text to the specified line
+                    num++; // Move to the next line number for subsequent inserts
+                }
+                line_num = num; // Update line_num to the next line after the last inserted
             } else { // no num
                 std::string new_line;
-                line_num = line_num - 1;
-                std::cout << line_num << "> ";
-                std::getline(std::cin, new_line);
-                editor.insertLine(line_num - 1, new_line); // insert the text before the current line
-                line_num = line_num + 2; // previous line -> next line
+                while (true) {
+                    std::cout << line_num - 1 << "> ";
+                    std::getline(std::cin, new_line);
+
+                    // Check for other commands
+                    if (new_line[0] == 'E' || new_line[0] == 'Q' || new_line[0] == 'D' || new_line[0] == 'L') {
+                        command = new_line; // Set the command for further processing
+                        break; // Break the insert mode to process the command
+                    }
+                    editor.insertLine(line_num - 2, new_line); // insert the text before the current line
+                    line_num++; // Move to the next line number for subsequent inserts
+                }
             }
 
         } else if (!command.empty() || command == "") {
