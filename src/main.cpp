@@ -36,6 +36,44 @@ public:
         }
     }
 
+    // Print specified line
+    void printLine(int index) const {
+        LinkedListNode *node = _start;
+        int curr_idx = 0;
+
+        while (node != nullptr && curr_idx < index) {
+            node = node->_next;
+            curr_idx++;
+        }
+
+        if (node != nullptr) {
+            std::cout << curr_idx + 1 << "> " << node->_data << std::endl;
+        } else {
+            std::cout << "Line " << index + 1 << " not found!" << std::endl;
+        }
+    }
+
+    // Print range of lines
+    void printRange(int start, int end) const {
+        LinkedListNode *node = _start;
+        int curr_idx = 0;
+
+        while (node != nullptr && curr_idx < start) {
+            node = node->_next;
+            curr_idx++;
+        }
+
+        while (node != nullptr && curr_idx <= end) {
+            std::cout << curr_idx + 1 << "> " << node->_data << std::endl;
+            node = node->_next;
+            curr_idx++;
+        }
+
+        if (curr_idx <= end) {
+            std::cout << "Range [" << start + 1 << ", " << end + 1 << "] exceeds file content!" << std::endl;
+        }
+    }
+
     // Save content to file
     void saveToFile(const std::string& filename) const {
         std::ofstream outFile(filename);
@@ -156,6 +194,23 @@ int main(int argc, char* argv[]) {
                 line_num = std::min(line_num - 1, editor.getLineCount() + 1); // update line number
             }
 
+        } else if (command[0] == 'L') {
+            std::stringstream ss(command);
+            char L;
+            int num1, num2;
+            ss >> L;
+
+            if (ss >> num1) { // get num1
+                if (ss >> num2) { // get num2
+                    editor.printRange(num1 - 1, num2 - 1); // display range frm num1 to num2
+                    line_num = num2 + 1; //  current line will be changed to the next line.
+                } else { // only num1
+                    editor.printLine(num1 - 1); // display this line
+                    line_num = num1 + 1; // current line will be changed to the line following that line
+                }
+            } else { // no num1, num2
+                editor.printLines(); //  entire contents of the linked list is displayed
+            }
         } else if (!command.empty()) {
             editor.addLine(command); // add new line
             line_num++;
